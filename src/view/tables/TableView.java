@@ -3,23 +3,38 @@ package view.tables;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.table.AbstractTableModel;
 import model.business.StudentBusiness;
 import model.pojo.Student;
 
 public class TableView extends AbstractTableModel{
     StudentBusiness business;
+    ArrayList<Student> students = new ArrayList<Student>();
     int _columnNum;
     int _rowNum;
     
     public TableView(StudentBusiness business){
-      this.business = business;
-      _rowNum=_rs.getRow();
-      _columnNum=md.getColumnCount();
+        try {
+            this.business = business;
+            _rowNum= business.numberOfStudents();
+            _columnNum= business.getColumns().size();
+            students = business.getAllStudents();
+        } catch (SQLException ex) {
+            Logger.getLogger(TableView.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
-    public Student getSelectedStudent() {
-        return null;
+    public Student getSelectedStudent(int rowIndex) {
+        /*Student student = new Student();
+        try {
+            student = business.getStudentById(getValueAt(rowIndex, 0).toString());
+        } catch (SQLException ex) {
+            Logger.getLogger(TableView.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
+        return students.get(rowIndex);
     }
     
     @Override
@@ -35,13 +50,19 @@ public class TableView extends AbstractTableModel{
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-          try {
-            _rs.absolute(rowIndex+1);
-            Object o=_rs.getObject(columnIndex +1);
-            return o;
+        Student student = students.get(rowIndex);
+        switch(columnIndex) {
+            case 0:
+                return student.getRegistro();
+            case 1:
+                return student.getDni();
+            case 2:
+                return student.getName();
+            case 3:
+                return student.getSurname1();
+            case 4:
+                return student.getSurname2();
         }
-        catch (SQLException ex){
-            return ex.toString();
-        }   
+        return null;
     }   
 }

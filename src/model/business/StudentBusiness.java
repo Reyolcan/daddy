@@ -9,14 +9,24 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.DBConnect;
 
-public class StudentBusiness {
+public class StudentBusiness implements Business<Student> {
     DBConnect connection;
     
     public StudentBusiness() {
         connection = new DBConnect();
     }
     
-    public Student createStudentFromResultSet(ResultSet resultSet) throws SQLException {
+    public static void main(String[] args) {
+        StudentBusiness busi = new StudentBusiness();
+        try {
+            System.out.println(busi.getAll().get(0).toString());
+        } catch (SQLException ex) {
+            Logger.getLogger(StudentBusiness.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    @Override
+    public Student createFromResultSet(ResultSet resultSet) throws SQLException {
         Student student = new Student();
         student.setRegistro(resultSet.getInt(1));
         student.setDni(resultSet.getString(2));
@@ -26,24 +36,27 @@ public class StudentBusiness {
         return student;
     }
     
-    public Student getStudentById(String id) throws SQLException {
+    @Override
+    public Student getById(String id) throws SQLException {
         String sql = "SELECT * FROM alumnos WHERE registro = " + id;
         ResultSet resultSet = connection.executeQuery(sql);
         resultSet.next();
-        return createStudentFromResultSet(resultSet);
+        return createFromResultSet(resultSet);
     }
     
-    public ArrayList<Student> getAllStudents() throws SQLException {
+    @Override
+    public ArrayList<Student> getAll() throws SQLException {
         ArrayList<Student> students = new ArrayList<Student>();
         String sql = "SELECT * FROM alumnos";
         ResultSet resultSet = connection.executeQuery(sql);
         while(resultSet.next()) {
-            students.add(createStudentFromResultSet(resultSet));
+            students.add(createFromResultSet(resultSet));
         }
         return students;
     }
     
-    public int addStudent(Student student) throws SQLException {
+    @Override
+    public int add(Student student) throws SQLException {
         String sql = "INSERT INTO alumnos(registro, dni, nombre, apellido1, apellido2) VALUES ('"
                 + student.getRegistro() + "', '" 
                 + student.getDni()+ "', '" 
@@ -53,25 +66,29 @@ public class StudentBusiness {
         return connection.executeSQLUpdate(sql);
     }
     
-    public int updateStudent(Student student) throws SQLException {
+    @Override
+    public int update(Student student) throws SQLException {
         String sql = "update alumnos set dni='" + student.getDni() + "', nombre='" + student.getName() + "', "
                     + "apellido1='" + student.getSurname1() + "', apellido2='" + student.getSurname2() + "' "
                     + "where registro=" + student.getRegistro();
         return connection.executeSQLUpdate(sql);
     }
     
-    public int deleteStudent(Student student) throws SQLException {
+    @Override
+    public int delete(Student student) throws SQLException {
         String sql = "delete from alumnos where registro=" + student.getRegistro();
         return connection.executeSQLUpdate(sql);
     }
     
-    public int numberOfStudents() throws SQLException {
+    @Override
+    public int numberOf() throws SQLException {
         String sql = "SELECT COUNT(*) FROM alumnos";
         ResultSet resultSet = connection.executeQuery(sql);
         resultSet.next();
         return resultSet.getInt(1);
     }
     
+    @Override
     public ArrayList<String> getColumns() throws SQLException {
         ArrayList<String> columns = new ArrayList<String>();
         String sql = "SELECT * FROM alumnos LIMIT 0";

@@ -50,4 +50,9 @@ public class Student {
     public void setSurname2(String surname2) {
         this.surname2 = surname2;
     }
+
+    @Override
+    public String toString() {
+        return registro + "#" + dni + "#" + name + "#" + surname1 + "#" + surname2;
+    }
 }

@@ -21,10 +21,10 @@ public class TableView<Pojo> extends AbstractTableModel{
     public TableView(Business business){
         try {
             this.business = business;
-            _rowNum= business.numberOf();
             columnNames = business.getColumns();
             _columnNum= business.getColumns().size();
             objects = business.getAll();
+            _rowNum= objects.size();
         } catch (SQLException ex) {
             Logger.getLogger(TableView.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -60,6 +60,18 @@ public class TableView<Pojo> extends AbstractTableModel{
     public void update() {
         try {
             objects = business.getAll();
+            _rowNum = objects.size();
+            this.fireTableDataChanged();
+        } catch (SQLException ex) {
+            Logger.getLogger(TableView.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void search(String searchText) {
+        try {
+            objects = business.getBySearch(searchText);
+            _rowNum = objects.size();
+            this.fireTableDataChanged();
         } catch (SQLException ex) {
             Logger.getLogger(TableView.class.getName()).log(Level.SEVERE, null, ex);
         }

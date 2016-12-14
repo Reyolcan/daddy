@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import model.DBConnect;
 
 public class StudentBusiness implements Business<Student> {
-    DBConnect connection;
+    private DBConnect connection;
     
     public StudentBusiness() {
         connection = new DBConnect();
@@ -42,6 +42,21 @@ public class StudentBusiness implements Business<Student> {
         ResultSet resultSet = connection.executeQuery(sql);
         resultSet.next();
         return createFromResultSet(resultSet);
+    }
+    
+    @Override
+    public ArrayList<Student> getBySearch(String searchText) throws SQLException {
+        ArrayList<Student> students = new ArrayList<Student>();
+        String sql = "SELECT * FROM alumnos WHERE "
+                + "dni LIKE '%" + searchText + "%' "
+                + "OR nombre LIKE '%" + searchText + "%' "
+                + "OR apellido1 LIKE '%" + searchText + "%' "
+                + "OR apellido2 LIKE '%" + searchText + "%'";
+        ResultSet resultSet = connection.executeQuery(sql);
+        while(resultSet.next()) {
+            students.add(createFromResultSet(resultSet));
+        }
+        return students;
     }
     
     @Override

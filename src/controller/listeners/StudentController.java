@@ -10,18 +10,25 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JTable;
+import javax.swing.Timer;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import model.pojo.Student;
 import model.business.StudentBusiness;
 import view.StudentDialog;
 import view.tables.TableView;
 
-public class StudentController implements ActionListener, MouseListener {
+public class StudentController implements ActionListener, MouseListener, DocumentListener {
 
     private StudentDialog mainDialog;
+    private Timer searchTimer;
 
     public StudentController(JFrame parent, boolean selectMode) {
         mainDialog = new StudentDialog(parent);
         setListeners();
+        setSearchTimer();
         if(selectMode) {
             mainDialog.getSelectButton().setEnabled(true);
         }
@@ -38,7 +45,25 @@ public class StudentController implements ActionListener, MouseListener {
         mainDialog.getUpdateButton().addActionListener(this);
         mainDialog.getExitButton().addActionListener(this);
         mainDialog.getStudentTable().addMouseListener(this);
+        mainDialog.getSearchText().getDocument().addDocumentListener(this);
     }
+    
+    public void setSearchTimer() {
+        searchTimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TableView model = (TableView) mainDialog.getStudentTable().getModel();
+                if(mainDialog.getSearchText().getText().length() > 0) {
+                    model.search(mainDialog.getSearchText().getText());
+                }
+                else {
+                    model.update();
+                }
+                searchTimer.stop();
+            }
+        });
+    }
+    
     public Student getStudentInput() {
         Student student = new Student();
         student.setRegistro(Integer.parseInt(mainDialog.getRegisterTextField().getText()));
@@ -125,5 +150,20 @@ public class StudentController implements ActionListener, MouseListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
+    }
+
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        searchTimer.restart();
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        searchTimer.restart();
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        searchTimer.restart();
     }
 }
